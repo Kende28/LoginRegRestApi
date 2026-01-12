@@ -17,7 +17,7 @@ class UsersViewModel(
     val state: StateFlow<UiState<List<UserDto>>> = _state
 
     fun load() {
-        _state.value = UiState.Loading
+
 
         viewModelScope.launch {
             try {
@@ -25,6 +25,19 @@ class UsersViewModel(
                 _state.value = UiState.Data(users)
             } catch (t: Throwable) {
                 _state.value = UiState.Error(t.message ?: "Hálózati hiba")
+            }
+        }
+    }
+
+    fun deleteUser(id: Long, onDone: () -> Unit) {
+        viewModelScope.launch {
+            try {
+                api.deleteUser(id)
+                load()
+
+                onDone()
+            } catch (t: Throwable) {
+                _state.value = UiState.Error(t.message ?: "Nem sikerült törölni")
             }
         }
     }
